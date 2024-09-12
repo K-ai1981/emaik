@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5th Grade Math Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        .quiz-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4a4a4a;
+            text-align: center;
+        }
+        .question, .name-field {
+            font-size: 18px;
+            margin: 15px 0;
+            color: #2c3e50;
+        }
+        input[type="number"], input[type="text"] {
+            font-size: 16px;
+            padding: 5px;
+            width: 80px;
+            margin-right: 10px;
+        }
+        input[type="text"] {
+            width: 200px;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .feedback {
+            font-size: 18px;
+            margin-left: 10px;
+        }
+        .result {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>5th Grade Math Quiz</h1>
+        <div class="name-field">
+            <label for="student-name">Your Name: </label>
+            <input type="text" id="student-name" placeholder="Enter your name" required>
+        </div>
+        <div id="questions"></div>
+        <button onclick="checkAllAnswers()">Submit All Answers</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <form id="result-form" action="https://formspree.io/f/xzblvqpn" method="POST" style="display:none;">
+        <input type="text" name="name" id="form-name">
+        <input type="text" name="score" id="form-score">
+        <input type="text" name="details" id="form-details">
+    </form>
+
+    <script>
+        const totalQuestions = 10;
+        let problems = [];
+
+        function generateQuestions() {
+            const questionsContainer = document.getElementById('questions');
+            for (let i = 0; i < totalQuestions; i++) {
+                const problem = generateProblem();
+                problems.push(problem);
+                
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <span>${i + 1}. ${problem.question} = </span>
+                    <input type="number" id="answer${i}" placeholder="Your answer">
+                    <span id="feedback${i}" class="feedback"></span>
+                `;
+                questionsContainer.appendChild(questionDiv);
+            }
+        }
+
+        function generateProblem() {
+            const operations = ['+', '-'];
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+            let num1, num2;
+
+            if (operation === '+') {
+                num1 = Math.floor(Math.random() * 100) + 1;
+                num2 = Math.floor(Math.random() * 100) + 1;
+            } else {
+                num1 = Math.floor(Math.random() * 100) + 51; // Ensure num1 is larger
+                num2 = Math.floor(Math.random() * 50) + 1;
+            }
+
+            return {
+                question: `${num1} ${operation} ${num2}`,
+                answer: operation === '+' ? num1 + num2 : num1 - num2
+            };
+        }
+
+        function checkAllAnswers() {
+            let score = 0;
+            let details = '';
+            for (let i = 0; i < totalQuestions; i++) {
+                const userAnswer = parseInt(document.getElementById(`answer${i}`).value);
+                const feedbackElement = document.getElementById(`feedback${i}`);
+                
+                if (userAnswer === problems[i].answer) {
+                    feedbackElement.innerHTML = '😊 Correct!';
+                    feedbackElement.style.color = 'green';
+                    score++;
+                    details += `Q${i+1}: Correct, `;
+                } else {
+                    feedbackElement.innerHTML = `😔 Correct answer: ${problems[i].answer}`;
+                    feedbackElement.style.color = 'red';
+                    details += `Q${i+1}: Incorrect (Answered: ${userAnswer}, Correct: ${problems[i].answer}), `;
+                }
+            }
+
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = `Your final score: ${score} out of ${totalQuestions}`;
+
+            // Prepare and send form
+            const name = document.getElementById('student-name').value;
+            document.getElementById('form-name').value = name;
+            document.getElementById('form-score').value = `${score} out of ${totalQuestions}`;
+            document.getElementById('form-details').value = details;
+            document.getElementById('result-form').submit();
+        }
+
+        generateQuestions();
+    </script>
+</body>
+</html>
